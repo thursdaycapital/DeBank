@@ -20,7 +20,31 @@ async function fetchDeBank(path: string, id: string, accessKey: string) {
     cache: "no-store",
   });
   if (!res.ok) {
-    throw new Error(`DeBank error: HTTP ${res.status}`);
+    let errorMessage = `DeBank API 错误: HTTP ${res.status}`;
+    try {
+      const errorBody = await res.text();
+      if (errorBody) {
+        try {
+          const errorJson = JSON.parse(errorBody);
+          errorMessage += ` - ${JSON.stringify(errorJson)}`;
+        } catch {
+          errorMessage += ` - ${errorBody}`;
+        }
+      }
+    } catch {
+      // 忽略解析错误
+    }
+    
+    // 针对常见错误提供更友好的提示
+    if (res.status === 403) {
+      errorMessage += "。可能的原因：1) AccessKey 无效或已过期；2) AccessKey 权限不足；3) IP 地址被限制。请检查 AccessKey 是否正确，或联系 DeBank 支持。";
+    } else if (res.status === 401) {
+      errorMessage += "。AccessKey 认证失败，请检查 AccessKey 是否正确。";
+    } else if (res.status === 429) {
+      errorMessage += "。请求频率过高，请稍后再试。";
+    }
+    
+    throw new Error(errorMessage);
   }
   return res.json();
 }
