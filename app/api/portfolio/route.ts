@@ -92,17 +92,25 @@ async function fetchPortfolioForAddress(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const addresses = body.addresses || body.address ? [body.address] : [];
-
+    
     // 支持单个地址或地址数组
-    const addressList = Array.isArray(addresses)
-      ? addresses
-      : typeof addresses === "string"
-        ? [addresses]
-        : [];
+    let addressList: string[] = [];
+    if (body.addresses) {
+      // 如果提供了 addresses 数组
+      addressList = Array.isArray(body.addresses) 
+        ? body.addresses 
+        : [body.addresses];
+    } else if (body.address) {
+      // 如果提供了单个 address
+      addressList = Array.isArray(body.address) 
+        ? body.address 
+        : [body.address];
+    }
 
     if (addressList.length === 0) {
-      return NextResponse.json({ error: "至少需要一个地址" }, { status: 400 });
+      return NextResponse.json({ 
+        error: "至少需要一个地址。请检查请求体是否包含 'addresses' 或 'address' 字段" 
+      }, { status: 400 });
     }
 
     // 去重并清理地址
@@ -111,7 +119,9 @@ export async function POST(req: Request) {
     );
 
     if (uniqueAddresses.length === 0) {
-      return NextResponse.json({ error: "地址不能为空" }, { status: 400 });
+      return NextResponse.json({ 
+        error: `地址不能为空。收到 ${addressList.length} 个地址，但清理后全部为空。请检查地址格式是否正确。` 
+      }, { status: 400 });
     }
 
     // 优先使用请求体中的 accessKey，如果没有则使用环境变量

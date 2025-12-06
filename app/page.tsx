@@ -134,7 +134,18 @@ export default function Page() {
       .filter(Boolean);
 
     if (addresses.length === 0) {
-      setError("请输入至少一个地址");
+      setError("请输入至少一个有效的地址（地址不能为空）");
+      return;
+    }
+
+    // 验证地址格式（基本检查：以 0x 开头，长度至少 40）
+    const invalidAddresses = addresses.filter(
+      (addr) => !addr.startsWith("0x") || addr.length < 40
+    );
+    if (invalidAddresses.length > 0) {
+      setError(
+        `以下地址格式可能不正确（应以 0x 开头，长度至少 40 字符）：${invalidAddresses.join(", ")}`
+      );
       return;
     }
 
