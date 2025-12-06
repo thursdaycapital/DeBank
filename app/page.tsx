@@ -106,6 +106,7 @@ function exportToCSV(data: AddressResult[]) {
 
 export default function Page() {
   const [addressInput, setAddressInput] = useState("");
+  const [accessKey, setAccessKey] = useState("");
   const [data, setData] = useState<AddressResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,6 +114,12 @@ export default function Page() {
   const handleQuery = async () => {
     setError(null);
     setData(null);
+
+    const key = accessKey.trim();
+    if (!key) {
+      setError("请输入 DeBank AccessKey");
+      return;
+    }
 
     const input = addressInput.trim();
     if (!input) {
@@ -136,7 +143,7 @@ export default function Page() {
       const res = await fetch("/api/portfolio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ addresses }),
+        body: JSON.stringify({ addresses, accessKey: key }),
       });
 
       const json: PortfolioResponse = await res.json();
@@ -187,6 +194,26 @@ export default function Page() {
       <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>
         全链资产查看器（DeBank + EVM RPC）
       </h1>
+
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: "block", marginBottom: 8, fontWeight: 500 }}>
+          DeBank AccessKey <span style={{ color: "#666", fontSize: 12, fontWeight: 400 }}>（每次查询都需要输入，不会保存）</span>：
+        </label>
+        <input
+          type="password"
+          value={accessKey}
+          onChange={(e) => setAccessKey(e.target.value)}
+          placeholder="输入 DeBank AccessKey（从 https://open.debank.com/ 获取）"
+          style={{
+            width: "100%",
+            padding: 10,
+            fontFamily: "monospace",
+            borderRadius: 4,
+            border: "1px solid #ccc",
+            fontSize: 14,
+          }}
+        />
+      </div>
 
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", marginBottom: 8, fontWeight: 500 }}>

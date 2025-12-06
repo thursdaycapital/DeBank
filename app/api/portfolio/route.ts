@@ -114,11 +114,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "地址不能为空" }, { status: 400 });
     }
 
-    const accessKey = process.env.DEBANK_ACCESS_KEY;
+    // 优先使用请求体中的 accessKey，如果没有则使用环境变量
+    const accessKey = (body.accessKey || "").trim() || process.env.DEBANK_ACCESS_KEY;
     if (!accessKey) {
       return NextResponse.json(
-        { error: "后端未配置 DEBANK_ACCESS_KEY" },
-        { status: 500 },
+        { error: "请提供 DeBank AccessKey（可在前端输入或配置环境变量 DEBANK_ACCESS_KEY）" },
+        { status: 400 },
       );
     }
 

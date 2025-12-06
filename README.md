@@ -5,6 +5,7 @@
 ## 功能特性
 
 - ✅ 支持单个或多个 EVM 地址批量查询
+- ✅ 前端输入 DeBank AccessKey（每次查询都需要输入，不会保存）
 - ✅ 集成 DeBank OpenAPI 获取资产数据
 - ✅ 通过 EVM RPC 实时查询原生币余额
 - ✅ 支持 6 条主流链：ETH、BSC、Polygon、Arbitrum、Optimism、Base
@@ -19,15 +20,17 @@
 npm install
 ```
 
-### 2. 配置环境变量
+### 2. 配置环境变量（可选）
 
-创建 `.env.local` 文件：
+如果需要使用环境变量配置 AccessKey（而不是每次在前端输入），可以创建 `.env.local` 文件：
 
 ```bash
 DEBANK_ACCESS_KEY=your_access_key_here
 ```
 
 > 获取 AccessKey：访问 [DeBank OpenAPI](https://open.debank.com/) 注册并获取 AccessKey
+> 
+> **注意**：即使配置了环境变量，前端仍然可以在输入框中输入 AccessKey，前端输入的优先级更高。
 
 ### 3. 运行开发服务器
 
@@ -55,9 +58,15 @@ npm start
 
 ## 使用方法
 
+### 输入 DeBank AccessKey
+
+1. 在页面顶部的 "DeBank AccessKey" 输入框中输入你的 AccessKey
+2. AccessKey 不会保存，每次查询都需要重新输入（更安全）
+3. 如果后端配置了环境变量 `DEBANK_ACCESS_KEY`，也可以不输入（但前端输入的优先级更高）
+
 ### 单个地址查询
 
-在输入框中输入一个 EVM 地址，点击「查询资产」按钮。
+在地址输入框中输入一个 EVM 地址，点击「查询资产」按钮。
 
 ### 批量地址查询
 
@@ -103,7 +112,8 @@ npm start
 请求体：
 ```json
 {
-  "addresses": ["0x...", "0x..."]  // 或单个 "address": "0x..."
+  "addresses": ["0x...", "0x..."],  // 或单个 "address": "0x..."
+  "accessKey": "your_access_key"    // 可选，如果提供则优先使用，否则使用环境变量
 }
 ```
 
@@ -132,8 +142,10 @@ npm start
 
 ## 注意事项
 
-- DeBank API 调用在服务端进行，AccessKey 不会暴露到客户端
-- 如果没有配置 `DEBANK_ACCESS_KEY`，API 会返回 500 错误
+- DeBank API 调用在服务端进行，AccessKey 通过请求体传递，不会暴露到 URL
+- 前端输入的 AccessKey 不会保存到 localStorage 或任何持久化存储，每次查询都需要重新输入
+- 如果既没有在前端输入 AccessKey，也没有配置环境变量 `DEBANK_ACCESS_KEY`，API 会返回 400 错误
+- 前端输入的 AccessKey 优先级高于环境变量
 - CSV 导出包含 UTF-8 BOM，确保 Excel 正确显示中文
 
 ## License
