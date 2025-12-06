@@ -50,11 +50,16 @@ npm start
 ## 部署到 Vercel
 
 1. 将代码推送到 GitHub
-2. 在 Vercel 中导入项目
-3. 在环境变量中添加 `DEBANK_ACCESS_KEY`
-4. 部署完成
+2. 在 [Vercel](https://vercel.com) 中导入项目
+3. 在项目设置中添加环境变量：
+   - 进入 **Settings** → **Environment Variables**
+   - 添加 `DEBANK_ACCESS_KEY` = 你的 AccessKey
+   - 选择环境（Production/Preview/Development）
+4. 点击 **Save** 并重新部署
 
 无需额外配置，Vercel 会自动识别 Next.js 项目。
+
+> 📖 **详细部署指南**：查看 [DEPLOYMENT.md](./DEPLOYMENT.md) 了解各种部署平台的环境变量配置方法
 
 ## 使用方法
 
